@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from board.database import get_pg_db_conn
+from board.database import get_db
 
 bp = Blueprint("pages", __name__)
 
@@ -11,35 +11,35 @@ def home():
 def about():
     return render_template("pages/about.html")
 
-# 🆕 Tambah post
+
+# 🆕 Tambah post (SQLite version)
 @bp.route("/create", methods=("GET", "POST"))
 def create():
+    db = get_db()  # gunakan koneksi SQLite dari database.py
+
     if request.method == "POST":
         author = request.form["author"]
         message = request.form["message"]
 
-        conn = get_pg_db_conn()
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO post (author, message) VALUES (%s, %s)",
+        # SQLite pakai tanda tanya (?) sebagai placeholder
+        db.execute(
+            "INSERT INTO post (author, message) VALUES (?, ?)",
             (author, message)
         )
-        conn.commit()
-        cur.close()
-        conn.close()
+        db.commit()
 
         return redirect(url_for("pages.posts"))
 
     return render_template("pages/create.html")
 
+
 # 🆕 List posts
 @bp.route("/posts")
 def posts():
-    conn = get_pg_db_conn()
-    cur = conn.cursor()
-    cur.execute("SELECT id, created, author, message FROM post ORDER BY id DESC")
-    posts = cur.fetchall()
-    cur.close()
-    conn.close()
-    return render_template("ppsts/posts.html", posts=posts)
+    db = get_db()
+    posts = db.execute(
+        "SELECT author, message, created FROM post ORDER BY created DESC"
+    ).fetchall()
+
+    return render_template("posts/posts.html", posts=posts)
 
