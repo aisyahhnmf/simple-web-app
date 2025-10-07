@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  psql-db:
+    image: postgres:14-bookworm
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: P4ssw0rd
+      POSTGRES_DB: flask_db
+    restart: unless-stopped
+    volumes:
+      - ./psql-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d flask_db -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    working_dir: /flask
+    ports:
+      - "8080:5000"
+    environment:
+      DB_HOST: psql-db
+      DB_USER: admin
+      DB_PASS: P4ssw0rd
+      DB_NAME: flask_db
+    depends_on:
+      psql-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    networks:
+      - app-network
+    depends_on:
+      - psql-db
+
+networks:
+  app-network:
+    driver: bridge
+
