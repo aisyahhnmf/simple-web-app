@@ -1,22 +1,33 @@
-from board.database import get_pg_db_conn
+import os
+import psycopg2
+from flask import current_app
 
-def init_db():
-    conn = get_pg_db_conn()
-    cur = conn.cursor()
-    cur.execute("DROP TABLE IF EXISTS post;")
-    cur.execute("""
-        CREATE TABLE post (
-            id serial PRIMARY KEY,
-            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            author TEXT NOT NULL,
-            message TEXT NOT NULL
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
-    print("Database initialized!")
+# Membuat koneksi ke PostgreSQL
+conn = psycopg2.connect(
+    host="psql-db",
+    database="flask_db",
+    user="admin",
+    password="P4ssw0rd",
+    port="5432"
+)
 
-if __name__ == "__main__":
-    init_db()
+cur = conn.cursor()
+
+# Hapus tabel post jika sudah ada
+cur.execute('DROP TABLE IF EXISTS post;')
+
+# Buat tabel post baru
+cur.execute('''
+    CREATE TABLE post (
+        id SERIAL PRIMARY KEY,
+        created DATE DEFAULT CURRENT_TIMESTAMP,
+        author TEXT NOT NULL,
+        message TEXT NOT NULL
+    );
+''')
+
+# Simpan perubahan dan tutup koneksi
+conn.commit()
+cur.close()
+conn.close()
 

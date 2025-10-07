@@ -1,7 +1,9 @@
+DROP TABLE IF EXISTS post;
+
 CREATE TABLE post (
-    id serial PRIMARY KEY,
-    author text NOT NULL,
-    message text NOT NULL,
-    created timestamp NOT NULL DEFAULT now()
+    id SERIAL PRIMARY KEY,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    author TEXT NOT NULL,
+    message TEXT NOT NULL
 );
 

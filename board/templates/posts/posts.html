@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h2>{% block title %}Posts{% endblock title %}</h2>
+  <h2>{% block title %}Posts{% endblock title %}</h2>
 {% endblock header %}
 
 {% block content %}
-    {% for post in posts %}
-        <article>
-            <p class="message">{{ post[1] }}<p>
-                <aside>Posted by {{ post[0] }} on {{ post[2] }}</aside>
-        </article>
-    {% endfor %}
+  {% for post in posts %}
+    <article>
+      <p class="message">{{ post[1] }}</p>
+      <aside>
+        Posted by {{ post[0] }} on {{ post[2] }}
+      </aside>
+    </article>
+  {% endfor %}
 {% endblock content %}
+
